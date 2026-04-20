@@ -1,11 +1,53 @@
 // HPI 1.7-G
-import React, { useRef } from 'react';
+import React, { useRef, useMemo } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Zap, Shield, Rocket, ChevronRight, Terminal } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+
+// Animated floating particles component
+function FloatingParticles() {
+  const particles = useMemo(() => {
+    return Array.from({ length: 20 }).map((_, i) => ({
+      id: i,
+      size: Math.random() * 3 + 1,
+      duration: Math.random() * 20 + 15,
+      delay: Math.random() * 5,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      opacity: Math.random() * 0.5 + 0.2,
+    }));
+  }, []);
+
+  return (
+    <div className="absolute inset-0 overflow-hidden">
+      {particles.map((particle) => (
+        <motion.div
+          key={particle.id}
+          className="absolute w-1 h-1 bg-primary rounded-full"
+          style={{
+            left: `${particle.x}%`,
+            top: `${particle.y}%`,
+            opacity: particle.opacity,
+          }}
+          animate={{
+            y: [0, -100, 0],
+            x: [0, Math.random() * 50 - 25, 0],
+            opacity: [particle.opacity, 0, particle.opacity],
+          }}
+          transition={{
+            duration: particle.duration,
+            delay: particle.delay,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+      ))}
+    </div>
+  );
+}
 
 export default function HomePage() {
   const heroRef = useRef<HTMLDivElement>(null);
@@ -16,6 +58,7 @@ export default function HomePage() {
 
   const heroY = useTransform(heroScroll, [0, 1], ["0%", "40%"]);
   const heroOpacity = useTransform(heroScroll, [0, 1], [1, 0]);
+  const heroScale = useTransform(heroScroll, [0, 1], [1, 1.1]);
 
   const breatherRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress: breatherScroll } = useScroll({
@@ -23,6 +66,20 @@ export default function HomePage() {
     offset: ["start end", "end start"]
   });
   const breatherY = useTransform(breatherScroll, [0, 1], ["-20%", "20%"]);
+
+  // Animated text reveal
+  const textVariants = {
+    hidden: { opacity: 0, y: 50 },
+    visible: (i: number) => ({
+      opacity: 1,
+      y: 0,
+      transition: {
+        delay: i * 0.1,
+        duration: 0.8,
+        ease: [0.21, 0.47, 0.32, 0.98],
+      },
+    }),
+  };
 
   const features = [
     {
@@ -55,127 +112,213 @@ export default function HomePage() {
         backgroundSize: '4rem 4rem'
       }} />
 
-      {/* HERO SECTION */}
+      {/* HERO SECTION - ENHANCED WOW FACTOR */}
       <section ref={heroRef} className="relative w-full min-h-screen flex items-center justify-center overflow-hidden pt-20">
-        {/* Dynamic Background */}
+        {/* Animated Background Layers */}
         <motion.div 
-          style={{ y: heroY, opacity: heroOpacity }}
+          style={{ y: heroY, opacity: heroOpacity, scale: heroScale }}
           className="absolute inset-0 z-0"
         >
           <div className="absolute inset-0 bg-gradient-to-b from-deep-space via-background to-deep-space" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[80vw] max-w-[1000px] max-h-[1000px] bg-primary/20 rounded-full blur-[120px] opacity-50 mix-blend-screen" />
-          <div className="absolute top-1/4 right-1/4 w-[40vw] h-[40vw] max-w-[600px] max-h-[600px] bg-burnt-orange/20 rounded-full blur-[100px] opacity-40 mix-blend-screen" />
+          
+          {/* Primary Gradient Orb */}
+          <motion.div
+            animate={{ 
+              x: [0, 50, -30, 0],
+              y: [0, -30, 50, 0],
+            }}
+            transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[80vw] max-w-[1000px] max-h-[1000px] bg-primary/25 rounded-full blur-[120px] opacity-60 mix-blend-screen"
+          />
+          
+          {/* Secondary Accent Orb */}
+          <motion.div
+            animate={{ 
+              x: [0, -40, 30, 0],
+              y: [0, 40, -30, 0],
+            }}
+            transition={{ duration: 25, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+            className="absolute top-1/4 right-1/4 w-[40vw] h-[40vw] max-w-[600px] max-h-[600px] bg-burnt-orange/20 rounded-full blur-[100px] opacity-50 mix-blend-screen"
+          />
+          
+          {/* Tertiary Accent */}
+          <motion.div
+            animate={{ 
+              x: [0, 30, -50, 0],
+              y: [0, -50, 20, 0],
+            }}
+            transition={{ duration: 30, repeat: Infinity, ease: "easeInOut", delay: 4 }}
+            className="absolute bottom-1/4 left-1/3 w-[35vw] h-[35vw] max-w-[500px] max-h-[500px] bg-secondary/15 rounded-full blur-[100px] opacity-40 mix-blend-screen"
+          />
         </motion.div>
+
+        {/* Floating Particles */}
+        <div className="absolute inset-0 z-1">
+          <FloatingParticles />
+        </div>
 
         <div className="relative z-10 w-full max-w-[120rem] mx-auto px-6 md:px-12 lg:px-24">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             
-            {/* Left Content */}
+            {/* Left Content - Enhanced */}
             <div className="lg:col-span-7 space-y-10">
-              <div className="space-y-2">
+              <div className="space-y-4">
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.8, ease: "easeOut" }}
                   className="flex items-center gap-3 text-primary font-heading tracking-widest uppercase text-sm font-bold"
                 >
-                  <Terminal className="w-4 h-4" />
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                  >
+                    <Terminal className="w-4 h-4" />
+                  </motion.div>
                   <span>System Initialization Sequence</span>
                 </motion.div>
                 
                 <h1 className="font-heading text-6xl sm:text-7xl lg:text-8xl xl:text-9xl font-black uppercase leading-[0.9] tracking-tighter">
                   <motion.span 
-                    initial={{ opacity: 0, y: 40 }}
+                    initial={{ opacity: 0, y: 60 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.1, ease: [0.21, 0.47, 0.32, 0.98] }}
+                    transition={{ duration: 0.9, delay: 0.1, ease: [0.21, 0.47, 0.32, 0.98] }}
                     className="block text-foreground"
                   >
                     Chingon
                   </motion.span>
                   <motion.span 
-                    initial={{ opacity: 0, y: 40 }}
+                    initial={{ opacity: 0, y: 60 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.2, ease: [0.21, 0.47, 0.32, 0.98] }}
-                    className="block text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-burnt-orange"
+                    transition={{ duration: 0.9, delay: 0.25, ease: [0.21, 0.47, 0.32, 0.98] }}
+                    className="block text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-burnt-orange animate-pulse"
                   >
                     Industries
                   </motion.span>
                 </h1>
               </div>
 
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 1, delay: 0.4 }}
-                className="text-lg sm:text-xl lg:text-2xl text-foreground/70 max-w-2xl leading-relaxed border-l-2 border-primary/50 pl-6"
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, delay: 0.5 }}
+                className="relative"
               >
-                Powering the future with cutting-edge SaaS solutions. 
-                Experience enterprise-grade technology designed for the modern digital forge.
-              </motion.p>
+                <div className="absolute -left-6 top-0 bottom-0 w-1 bg-gradient-to-b from-primary via-secondary to-transparent" />
+                <p className="text-lg sm:text-xl lg:text-2xl text-foreground/80 max-w-2xl leading-relaxed pl-6">
+                  Powering the future with cutting-edge SaaS solutions. 
+                  Experience enterprise-grade technology designed for the modern digital forge.
+                </p>
+              </motion.div>
 
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.6 }}
-                className="flex flex-col sm:flex-row gap-6 pt-4"
+                transition={{ duration: 0.8, delay: 0.7 }}
+                className="flex flex-col sm:flex-row gap-6 pt-6"
               >
-                <Link to="/services" className="group relative inline-flex items-center justify-center px-8 py-5 font-heading font-bold text-background bg-primary overflow-hidden transition-all hover:scale-[1.02]">
-                  <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
+                <Link to="/services" className="group relative inline-flex items-center justify-center px-8 py-5 font-heading font-bold text-background bg-primary overflow-hidden transition-all hover:scale-[1.05] hover:shadow-[0_0_30px_rgba(255,107,0,0.5)]">
+                  <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
                   <span className="relative flex items-center gap-2 uppercase tracking-wider">
                     Explore Plans
-                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    <motion.div
+                      animate={{ x: [0, 5, 0] }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                    >
+                      <ArrowRight className="w-5 h-5" />
+                    </motion.div>
                   </span>
                 </Link>
-                <Link to="/terms" className="group inline-flex items-center justify-center px-8 py-5 font-heading font-bold text-foreground border border-foreground/20 hover:border-primary hover:text-primary transition-colors uppercase tracking-wider">
-                  Terms & Policies
+                <Link to="/terms" className="group relative inline-flex items-center justify-center px-8 py-5 font-heading font-bold text-foreground border-2 border-foreground/30 hover:border-primary hover:text-primary transition-all duration-300 uppercase tracking-wider overflow-hidden">
+                  <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <span className="relative">Terms & Policies</span>
                 </Link>
               </motion.div>
             </div>
 
-            {/* Right Content - Abstract Tech Visual */}
+            {/* Right Content - Enhanced Tech Visual */}
             <div className="lg:col-span-5 relative hidden lg:block h-[600px]">
               <div className="absolute inset-0 flex items-center justify-center">
-                {/* Core */}
+                {/* Outer rotating ring */}
                 <motion.div 
                   animate={{ rotate: 360 }}
-                  transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-                  className="relative w-96 h-96"
+                  transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+                  className="absolute w-96 h-96 border border-primary/20 rounded-full"
+                />
+                
+                {/* Middle rotating ring - reverse */}
+                <motion.div 
+                  animate={{ rotate: -360 }}
+                  transition={{ duration: 45, repeat: Infinity, ease: "linear" }}
+                  className="absolute w-80 h-80 border border-secondary/30 rounded-full border-dashed"
+                />
+                
+                {/* Inner rotating ring */}
+                <motion.div 
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+                  className="absolute w-64 h-64 border border-burnt-orange/40 rounded-full"
+                />
+                
+                {/* Orbiting particles */}
+                <motion.div 
+                  animate={{ rotate: -360 }}
+                  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                  className="absolute w-96 h-96"
                 >
-                  <div className="absolute inset-0 border border-primary/30 rounded-full" />
-                  <div className="absolute inset-4 border border-secondary/20 rounded-full border-dashed" />
-                  <div className="absolute inset-12 border border-burnt-orange/40 rounded-full" />
-                  
-                  {/* Orbiting Elements */}
                   <motion.div 
-                    className="absolute top-0 left-1/2 w-3 h-3 bg-primary rounded-full shadow-[0_0_15px_#FF6B00]"
-                    style={{ originX: 0, originY: 192 }} // 192 is half of 396 (96 * 4)
+                    className="absolute top-0 left-1/2 w-3 h-3 bg-primary rounded-full shadow-[0_0_20px_#FF6B00]"
+                    animate={{ scale: [1, 1.5, 1] }}
+                    transition={{ duration: 2, repeat: Infinity }}
                   />
+                </motion.div>
+                
+                <motion.div 
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+                  className="absolute w-80 h-80"
+                >
                   <motion.div 
-                    className="absolute bottom-0 right-1/2 w-2 h-2 bg-secondary rounded-full shadow-[0_0_10px_#FF9F00]"
-                    style={{ originX: 0, originY: -192 }}
+                    className="absolute bottom-0 right-1/2 w-2 h-2 bg-secondary rounded-full shadow-[0_0_15px_#FF9F00]"
+                    animate={{ scale: [1, 1.3, 1] }}
+                    transition={{ duration: 2.5, repeat: Infinity, delay: 0.5 }}
                   />
                 </motion.div>
 
-                {/* Center Graphic */}
-                <div className="absolute w-32 h-32 bg-background border border-primary/50 flex items-center justify-center rotate-45 overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent" />
-                  <Terminal className="w-12 h-12 text-primary -rotate-45" />
-                </div>
+                {/* Center Graphic - Enhanced */}
+                <motion.div 
+                  animate={{ 
+                    rotate: [0, 360],
+                    scale: [1, 1.05, 1]
+                  }}
+                  transition={{ 
+                    rotate: { duration: 20, repeat: Infinity, ease: "linear" },
+                    scale: { duration: 3, repeat: Infinity, ease: "easeInOut" }
+                  }}
+                  className="absolute w-32 h-32 bg-background border-2 border-primary/60 flex items-center justify-center overflow-hidden shadow-[0_0_40px_rgba(255,107,0,0.3)]"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-transparent" />
+                  <Terminal className="w-12 h-12 text-primary" />
+                </motion.div>
               </div>
             </div>
 
           </div>
         </div>
 
-        {/* Scroll Indicator */}
+        {/* Enhanced Scroll Indicator */}
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.5, duration: 1 }}
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3"
         >
           <span className="text-xs font-heading tracking-widest text-foreground/50 uppercase">Scroll to initialize</span>
-          <div className="w-[1px] h-16 bg-gradient-to-b from-primary to-transparent" />
+          <motion.div
+            animate={{ y: [0, 8, 0] }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="w-[1px] h-16 bg-gradient-to-b from-primary to-transparent"
+          />
         </motion.div>
       </section>
 
